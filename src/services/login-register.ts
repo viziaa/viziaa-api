@@ -63,3 +63,30 @@ export async function loginUser(email: string, password:string) {
     } catch (err:any) {throw new Error(err.message || "Terjadi kesalahan");}
     
 }
+
+export async function logoutService(token: any) {
+  if (!token) {
+    return {
+      code: 400,
+      status: "error",
+      message: "No session found",
+    };
+  }
+
+  const { error } = await supabase.auth.signOut(token);
+
+  if (error) {
+    return {
+      code: 400,
+      status: "error",
+      message: error.message,
+    };
+  }
+
+  return {
+    code: 200,
+    status: "success",
+    message: "Logout successful",
+  };
+}
+
