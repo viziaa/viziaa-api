@@ -1,12 +1,10 @@
 import { Request, Response } from "express"
 import { loginUser, logoutService, registerUser } from "../services/login-register"
-import { supabase } from "../client/supabase"
 
 
 export async function handlerRegister(req:Request, res:Response){
     try{
         const { fullname, email, password} = req.body
-        // if (!nickname) throw new Error ("nickname tidak boleh kosong")
         if(!fullname) throw new Error ("full name tidak boleh kosong")
         if(!email) throw new Error ("email tidak boleh kosong")
         if(!password) throw new Error ("password tidak boleh kosong")
@@ -16,7 +14,7 @@ export async function handlerRegister(req:Request, res:Response){
         return res.status(200).json({
             code: 200,
             status: "success",
-            message: "Registrasi berhasil. Akun berhasil dibuat.",
+            message: "Registrasi berhasil. Silahkan cek email anda untuk aktivasi",
             data: data,
             });
     } catch (err: any) {

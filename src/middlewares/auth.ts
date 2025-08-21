@@ -1,12 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { supabase } from "../client/supabase";
-import { error } from "console";
 
 
 export async function authenticate(req:Request, res:Response, next:NextFunction) {
-    
-       
-
     try{
          const token = req.cookies["sb-session"]
     

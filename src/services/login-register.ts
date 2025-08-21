@@ -2,20 +2,8 @@ import { supabase } from "../client/supabase";
 import { registerScema } from "../validations/login-register";
 
 
-interface LoginResult {
-  dbData: {
-    id: string;
-    nickname: string;
-    fullname: string;
-    email: string;
-  };
-  access_token: string | null;
-  refresh_token: string | null;
-}
-
 export async function registerUser(fullname: string ,email:string, password:string) {
     try{
-        // if(nickname.length >10) throw new Error("nickname tidak boleh lebih dari 10 karakter")
         if(password.length <6) throw new Error("Password harus mengandung minimal 6 Karakter")
         
         const {error: schemaError} = registerScema.validate({ fullname, email,password})
