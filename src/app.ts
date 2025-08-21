@@ -5,6 +5,7 @@ import auth from "./routes/login-register"
 import experience from "./routes/work-experiences"
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cv from "./routes/cv";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
 
 app.use("/educations", educations);
+app.use("/cv", cv);
 
 app.use(express.json())
 
