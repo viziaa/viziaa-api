@@ -1,35 +1,40 @@
-import express from "express"
-import type { Request, Response } from "express"
+import express from "express";
+import type { Request, Response } from "express";
 import session from "express-session";
-import { supabase } from "./client/supabase"
-import auth from "./routes/login-register"
+import { supabase } from "./client/supabase";
+import auth from "./routes/login-register";
+import educations from "./routes/education";
 import dotenv from "dotenv";
 import { authenticate } from "./middlewares/auth";
 import cookieParser from "cookie-parser";
 
+dotenv.config();
 
-dotenv.config()
-
-const app = express()
+const app = express();
 app.use(cookieParser());
 
-app.use(express.json())
+app.use(express.json());
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "rahasia_super_aman",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, httpOnly: true, sameSite: "lax", maxAge: 86400000 }
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 86400000,
+    },
   })
 );
 
-app.get("/", authenticate, (req:Request, res:Response) =>{
-    res.send("Hello VIZIA")
-})
+app.get("/", authenticate, (req: Request, res: Response) => {
+  res.send("Hello VIZIA");
+});
 app.get("/users", async (req: Request, res: Response) => {
   try {
     const { data, error } = await supabase
-      .from("cv")        // nama tabel
+      .from("cv") // nama tabel
       .select("*"); // kolom yang diambil
 
     if (error) {
@@ -42,8 +47,9 @@ app.get("/users", async (req: Request, res: Response) => {
   }
 });
 
-app.use("/api/v1", auth)
+app.use("/auth", auth);
+app.use("/educations", educations);
 
-app.listen(process.env.PORT, ()=> {
-    console.log("Server is running")
-})
+app.listen(process.env.PORT, () => {
+  console.log("Server is running");
+});
