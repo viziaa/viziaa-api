@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import {
-  getCVsService,
   createCVService,
-  updateCVService,
   deleteCVService,
+  getCVsService,
+  updateCVService,
 } from "../services/cv";
 
 export const getCVs = async (req: Request, res: Response) => {
@@ -21,10 +21,13 @@ export const getCVs = async (req: Request, res: Response) => {
 export const createCV = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id;
+    const { name, color, font } = req.body;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const newCV = await createCVService({
-      ...req.body,
+      name,
+      color,
+      font,
       created_by: userId,
     });
 

@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import {
-  getEducationsService,
   createEducationService,
-  updateEducationService,
   deleteEducationService,
+  getEducationsService,
+  updateEducationService,
 } from "../services/educations";
-import { error } from "console";
 
 export const getEducations = async (req: Request, res: Response) => {
   try {
@@ -22,10 +21,16 @@ export const getEducations = async (req: Request, res: Response) => {
 export const createEducation = async (req: Request, res: Response) => {
   try {
     const { cv_id } = req.params;
+    const { education_level, school_name, school_address, date_in, date_out } =
+      req.body;
     if (!cv_id) return res.status(400).json({ message: "cv_id is required" });
 
     const newEducation = await createEducationService({
-      ...req.body,
+      education_level,
+      school_name,
+      school_address,
+      date_in,
+      date_out,
       cv_id,
     });
 

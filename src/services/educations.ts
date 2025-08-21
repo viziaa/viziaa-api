@@ -33,6 +33,7 @@ export const createEducationService = async (
     .single();
 
   if (error) throw error;
+
   return data;
 };
 
