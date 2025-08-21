@@ -1,15 +1,29 @@
 import express from "express"
 import type { Request, Response } from "express"
+import session from "express-session";
 import { supabase } from "./client/supabase"
+import auth from "./routes/login-register"
 import dotenv from "dotenv";
+import { authenticate } from "./middlewares/auth";
+import cookieParser from "cookie-parser";
+
 
 dotenv.config()
 
 const app = express()
+app.use(cookieParser());
 
 app.use(express.json())
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "rahasia_super_aman",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, httpOnly: true, sameSite: "lax", maxAge: 86400000 }
+  })
+);
 
-app.get("/", (req:Request, res:Response) =>{
+app.get("/", authenticate, (req:Request, res:Response) =>{
     res.send("Hello VIZIA")
 })
 app.get("/users", async (req: Request, res: Response) => {
@@ -27,6 +41,8 @@ app.get("/users", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use("/api/v1", auth)
 
 app.listen(process.env.PORT, ()=> {
     console.log("Server is running")
