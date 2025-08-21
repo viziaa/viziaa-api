@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { loginUser, registerUser } from "../services/login-register"
+import { loginUser, logoutService, registerUser } from "../services/login-register"
 import { supabase } from "../client/supabase"
 
 
@@ -62,41 +62,27 @@ export async function handlerLoginUser(req:Request, res:Response) {
 }
 
 
-export const handlerLogoutUser = async (req: Request, res: Response) => {
+
+export const logoutController = async (req: Request, res: Response) => {
   try {
-    console.log("Session:", (req as any).session);
-    if (!(req as any).session?.user) {
-      return res.status(400).json({
-        status: "error",
-        message: "Tidak ada user yang sedang login",
+    const token = req.cookies["sb-session"];
+
+    const result = await logoutService(token);
+
+    if (result.code === 200) {
+      res.clearCookie("sb-session", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
       });
     }
 
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      return res.status(400).json({
-        status: "error",
-        message: error.message,
-      });
-    }
-
-    (req as any).session.destroy((err: any) => {
-      if (err) {
-        return res.status(500).json({
-          status: "error",
-          message: "Gagal menghapus session",
-        });
-      }
-
-      return res.json({
-        status: "success",
-        message: "Logout berhasil",
-      });
-    });
+    return res.status(result.code).json(result);
   } catch (err: any) {
     return res.status(500).json({
+      code: 500,
       status: "error",
-      message: err.message,
+      message: err.message || "Internal server error",
     });
   }
 };
