@@ -7,6 +7,7 @@ import educations from "./routes/education";
 import auth from "./routes/login-register";
 import user from "./routes/user";
 import experience from "./routes/work-experiences";
+import skill from "./routes/skill"
 
 dotenv.config();
 
@@ -18,7 +19,8 @@ app.use(corsMiddleware);
 app.use("/educations", educations);
 app.use("/cv", cv);
 app.use("/auth", auth);
-app.use("/experience", experience);
+app.use("/experiences", experience);
+app.use("/skill", skill)
 app.use("/user", user);
 
 app.listen(process.env.PORT, () => {

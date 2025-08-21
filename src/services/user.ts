@@ -1,4 +1,4 @@
-import { supabase } from "../../../viziaa-api/src/client/supabase";
+import { supabase } from "../client/supabase";
 
 export const getUser = async (id: string) => {
   const { data: userData, error: userError } = await supabase
