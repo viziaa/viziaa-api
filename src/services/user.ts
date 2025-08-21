@@ -19,7 +19,8 @@ export const formDataUser = async (
   nickname: string,
   address: string,
   city: string,
-  region: string
+  region: string,
+  birthdate: Date
 ) => {
   if (!nickname || !address || !city || !region) {
     throw new Error("All fields are required");
@@ -32,7 +33,7 @@ export const formDataUser = async (
       address,
       city,
       region,
-      //   birthdate: data.birthdate,
+      birthdate,
     })
     .eq("id", id)
     .select()

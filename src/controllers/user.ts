@@ -14,13 +14,20 @@ export const handleGetUser = async (req: Request, res: Response) => {
 export const handleFormDataUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { nickname, address, city, region } = req.body;
+    const { nickname, address, city, region, birthdate } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "id is required" });
     }
 
-    const result = await formDataUser(id, nickname, address, city, region);
+    const result = await formDataUser(
+      id,
+      nickname,
+      address,
+      city,
+      region,
+      birthdate
+    );
     res.status(200).json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
