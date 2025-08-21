@@ -4,15 +4,17 @@
     // File Layout
     "rootDir": "./src",
     // "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
     "target": "es2020",
-    "types": [],
+    // "types": [],
     // For nodejs:
     // "lib": ["esnext"],
-    // "types": ["node"],
+    "types": ["node"],
+    "typeRoots": ["./types", "./node_modules/@types"],
     // and npm install -D @types/node
 
     // Other Outputs
@@ -41,5 +43,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "esModuleInterop": true,
-  }
+  },
+   "include": ["src", "types"]
 }
