@@ -10,49 +10,107 @@ export interface Education {
   date_out?: Date;
 }
 
-export const getEducationsService = async (
-  cvId: string
-): Promise<Education[]> => {
-  const { data, error } = await supabase
-    .from("education")
+export async function getEducations(cv_id: string, userId: string) {
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
     .select("*")
-    .eq("cv_id", cvId)
+    .eq("id", cv_id)
+    .single();
+
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
+
+  const { data: eduData, error: eduError } = await supabase
+    .from("education")
+    .select("*, cv(*)")
+    .eq("cv_id", cv_id)
     .order("date_in", { ascending: false });
 
-  if (error) throw error;
-  return data || [];
-};
+  if (eduError) throw new Error(eduError.message);
+  return eduData;
+}
 
-export const createEducationService = async (
-  education: Education
-): Promise<Education> => {
+export async function createEducation(
+  education_level: string,
+  school_name: string,
+  school_address: string,
+  date_in: Date,
+  date_out: Date,
+  cv_id: string,
+  userId: string
+) {
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", cv_id)
+    .single();
+
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
+
   const { data, error } = await supabase
     .from("education")
-    .insert([education])
+    .insert({
+      education_level,
+      school_name,
+      school_address,
+      date_in,
+      date_out,
+      cv_id,
+    })
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
 
   return data;
-};
+}
 
-export const updateEducationService = async (
+export async function updateEducation(
   id: string,
-  payload: Partial<Education>
-): Promise<Education> => {
+  education_level: string,
+  school_name: string,
+  school_address: string,
+  date_in: Date,
+  date_out: Date,
+  userId: string
+) {
+  const { data: eduData, error: eduError } = await supabase
+    .from("education")
+    .select("*, cv(*)")
+    .eq("id", id)
+    .single();
+
+  if (eduError) throw new Error(eduError.message);
+  if (eduData.cv.created_by !== userId) throw new Error("Tidak memiliki akses");
+
   const { data, error } = await supabase
     .from("education")
-    .update(payload)
+    .update({
+      education_level,
+      school_name,
+      school_address,
+      date_in,
+      date_out,
+    })
     .eq("id", id)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return data;
-};
+}
 
-export const deleteEducationService = async (id: string): Promise<void> => {
+export async function deleteEducation(id: string, userId: string) {
+  const { data: eduData, error: eduError } = await supabase
+    .from("education")
+    .select("*, cv(*)")
+    .eq("id", id)
+    .single();
+
+  if (eduError) throw new Error(eduError.message);
+  if (eduData.cv.created_by !== userId) throw new Error("Tidak memiliki akses");
+
   const { error } = await supabase.from("education").delete().eq("id", id);
-  if (error) throw error;
-};
+  if (error) throw new Error(error.message);
+}

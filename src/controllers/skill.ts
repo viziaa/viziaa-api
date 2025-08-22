@@ -3,16 +3,20 @@ import {
   addSkill,
   deleteSkill,
   editSkill,
-  getAllSkill,
   getDetailSkill,
+  getSkills,
 } from "../services/skills";
 
-export async function handlerGetAllSkill(req: Request, res: Response) {
+export async function handleGetSkills(req: Request, res: Response) {
   try {
-    const cv_id = req.params.cv_id;
-    if (!cv_id) throw new Error("id CV tidak ditemukan");
+    const cv_id = req.params.cv_id!;
+    const userId = (req as any).user?.id;
 
-    const data = await getAllSkill(cv_id);
+    if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
+    const data = await getSkills(cv_id, userId);
 
     return res.status(200).json({
       code: 200,
@@ -29,38 +33,49 @@ export async function handlerGetAllSkill(req: Request, res: Response) {
   }
 }
 
-export async function handlerGetDetailSkill(req: Request, res: Response) {
+export async function handleGetDetailSkill(req: Request, res: Response) {
   try {
-    const skill_id = req.params.expr_id;
-    if (!skill_id) throw new Error("id data Skill tidak ditemukan");
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
 
-    const data = await getDetailSkill(skill_id);
+    if (!id) return res.status(400).json({ message: "Skill tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
+    const data = await getDetailSkill(id, userId);
 
     return res.status(200).json({
       code: 200,
       status: "success",
       message: "Data Detail Skill Berhasil ditemukan",
-      data: data,
+      data,
     });
   } catch (err: any) {
     return res.status(500).json({
       code: 500,
       status: "error",
-      message: err.message || "Invalid register",
+      message: err.message,
     });
   }
 }
 
-export async function handlerAddSkill(req: Request, res: Response) {
+export async function handleAddSkill(req: Request, res: Response) {
   try {
-    const cv_id = req.params.cv_id;
-    if (!cv_id) throw new Error("id CV tidak ditemukan");
+    const cv_id = req.params.cv_id!;
+    const userId = (req as any).user?.id;
     const { skill_name, ability_level, certificate } = req.body;
-    if (!skill_name) throw new Error("input skill name tidak boleh kosong");
-    if (!ability_level)
-      throw new Error("input ability level tidak boleh kosong");
 
-    const data = await addSkill(cv_id, skill_name, ability_level, certificate);
+    if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
+    const data = await addSkill(
+      cv_id,
+      skill_name,
+      ability_level,
+      certificate,
+      userId
+    );
 
     return res.status(200).json({
       code: 200,
@@ -72,56 +87,65 @@ export async function handlerAddSkill(req: Request, res: Response) {
     return res.status(500).json({
       code: 500,
       status: "error",
-      message: err.message || "Invalid register",
+      message: err.message,
     });
   }
 }
 
-export async function handlerEditSkill(req: Request, res: Response) {
+export async function handleEditSkill(req: Request, res: Response) {
   try {
-    const skill_id = req.params.expr_id;
-    if (!skill_id) throw new Error("id data Skill tidak ditemukan");
-    const { skill_name, certified } = req.body;
-    const ability_level = Number(req.body.ability_level);
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
+    const { skill_name, ability_level, certificate } = req.body;
+
+    if (!id) return res.status(400).json({ message: "Skill tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
     const data = await editSkill(
-      skill_id,
+      id,
       skill_name,
       ability_level,
-      certified
+      certificate,
+      userId
     );
 
     return res.status(200).json({
       code: 200,
       status: "success",
       message: "Berhasil Edit Data Skill",
-      data: data,
+      data,
     });
   } catch (err: any) {
     return res.status(500).json({
       code: 500,
       status: "error",
-      message: err.message || "Invalid register",
+      message: err.message,
     });
   }
 }
 
-export async function handlerDeleteSkill(req: Request, res: Response) {
+export async function handleDeleteSkill(req: Request, res: Response) {
   try {
-    const skill_id = req.params.expr_id;
-    if (!skill_id) throw new Error("id data Skill tidak ditemukan");
-    const data = await deleteSkill(skill_id);
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
+
+    if (!id) return res.status(400).json({ message: "Skill tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
+    await deleteSkill(id, userId);
 
     return res.status(200).json({
       code: 200,
       status: "success",
-      message: "Berhasil Delete Data Skill",
-      data: data,
+      message: "Data Skill Berhasil dihapus",
     });
   } catch (err: any) {
     return res.status(500).json({
       code: 500,
       status: "error",
-      message: err.message || "Invalid register",
+      message: err.message,
     });
   }
 }

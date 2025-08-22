@@ -1,60 +1,94 @@
 import { Request, Response } from "express";
-import {
-  createCVService,
-  deleteCVService,
-  getCVsService,
-  updateCVService,
-} from "../services/cv";
+import { createCV, deleteCV, getCVs, updateCV } from "../services/cv";
 
-export const getCVs = async (req: Request, res: Response) => {
+export async function handleGetCVs(req: Request, res: Response) {
   try {
-    const userId = (req as any).user?.id; // Ambil dari JWT middleware
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const userId = (req as any).user?.id;
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
 
-    const cvs = await getCVsService(userId);
-    res.status(200).json(cvs);
+    const data = await getCVs(userId);
+    res.status(200).json({
+      code: 200,
+      status: "success",
+      message: "Berhasil mengambil CV",
+      data,
+    });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
+}
 
-export const createCV = async (req: Request, res: Response) => {
+export async function handleCreateCV(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;
     const { name, color, font } = req.body;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
 
-    const newCV = await createCVService({
-      name,
-      color,
-      font,
-      created_by: userId,
+    const data = await createCV(name, color, font, userId);
+
+    res.status(201).json({
+      code: 201,
+      status: "success",
+      message: "CV berhasil dibuat",
+      data,
     });
-
-    res.status(201).json(newCV);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
+}
 
-export const updateCV = async (req: Request, res: Response) => {
+export async function handleUpdateCV(req: Request, res: Response) {
   try {
-    const id: string = req.params.id!;
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
+    const { name, color, font } = req.body;
 
-    const updatedCV = await updateCVService(id, req.body);
-    res.status(200).json(updatedCV);
+    if (!id) {
+      return res
+        .status(400)
+        .json({ code: 400, status: "error", message: "CV tidak ditemukan" });
+    }
+
+    if (!userId) {
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+    }
+
+    const data = await updateCV(id, name, color, font, userId);
+    res.status(200).json({
+      code: 200,
+      status: "success",
+      message: "CV berhasil diupdate",
+      data,
+    });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
+}
 
-export const deleteCV = async (req: Request, res: Response) => {
+export const handleDeleteCV = async (req: Request, res: Response) => {
   try {
-    const id: string = req.params.id!;
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+    }
 
-    await deleteCVService(id);
-    res.status(204).send();
+    await deleteCV(id, userId);
+
+    res
+      .status(200)
+      .json({ code: 200, status: "success", message: "CV berhasil dihapus" });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
 };

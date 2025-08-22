@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
-import { formDataUser, getUser } from "../services/user";
+import { formDataUser, getDataUser } from "../services/user";
 
-export const handleGetUser = async (req: Request, res: Response) => {
+export const handleGetDataUser = async (req: Request, res: Response) => {
   try {
     const id = (req as any).user.id;
-    const user = await getUser(id);
+
+    if (!id) {
+      return res.status(400).json({ error: "Tidak terotentikasi" });
+    }
+
+    const user = await getDataUser(id);
     res.status(200).json(user);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -13,23 +18,31 @@ export const handleGetUser = async (req: Request, res: Response) => {
 
 export const handleFormDataUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const { nickname, address, city, region, birthdate } = req.body;
+    const id = (req as any).user.id;
+    const { nickname, phone, about, address, city, region, birthdate } =
+      req.body;
 
     if (!id) {
-      return res.status(400).json({ error: "id is required" });
+      return res.status(400).json({ error: "Tidak terotentikasi" });
     }
+
+    const avatar = req.file!.path;
 
     const result = await formDataUser(
       id,
+      avatar,
       nickname,
+      about,
+      Number(phone),
       address,
       city,
       region,
       birthdate
     );
-    res.status(200).json(result);
+    res
+      .status(200)
+      .json({ code: 200, status: "success", message: "success", result });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ code: 500, status: "error", error: err.message });
   }
 };

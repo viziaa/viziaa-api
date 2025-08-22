@@ -1,9 +1,9 @@
 import { supabase } from "../client/supabase";
 
-export const getUser = async (id: string) => {
+export async function getDataUser(id: string) {
   const { data: userData, error: userError } = await supabase
     .from("users")
-    .select("*, cv(*, education(*), work_experiences(*),skills(*))")
+    .select("*, cv(*, education(*), work_experiences(*), skills(*))")
     .eq("id", id)
     .single();
 
@@ -12,24 +12,38 @@ export const getUser = async (id: string) => {
   }
 
   return userData;
-};
+}
 
-export const formDataUser = async (
+export async function formDataUser(
   id: string,
+  avatar: string,
   nickname: string,
+  about: string,
+  phone: number,
   address: string,
   city: string,
   region: string,
   birthdate: Date
-) => {
-  if (!nickname || !address || !city || !region) {
-    throw new Error("All fields are required");
+) {
+  if (
+    !avatar ||
+    !nickname ||
+    !phone ||
+    !about ||
+    !address ||
+    !city ||
+    !region
+  ) {
+    throw new Error("Data tidak boleh kosong");
   }
 
   const { data: userData, error: userError } = await supabase
     .from("users")
     .update({
+      avatar,
       nickname,
+      about,
+      phone,
       address,
       city,
       region,
@@ -37,11 +51,11 @@ export const formDataUser = async (
     })
     .eq("id", id)
     .select()
-    .maybeSingle();
+    .single();
 
   if (userError) {
     throw new Error(userError.message);
   }
 
   return userData;
-};
+}

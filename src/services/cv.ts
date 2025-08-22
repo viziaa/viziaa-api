@@ -1,63 +1,68 @@
 import { supabase } from "../client/supabase";
 
-export interface CV {
-  id?: string;
-  created_by: string;
-  color?: string;
-  font?: string;
-  name: string;
-}
-
-export const getCVsService = async (userId: string): Promise<CV[]> => {
-  const { data: cvs, error: cvError } = await supabase
-    .from("cv")
-    .select("*")
-    .eq("created_by", userId);
-
-  if (cvError) throw cvError;
-  if (!cvs) return [];
-
-  // Ambil semua education untuk user tersebut
-  const { data: educations, error: eduError } = await supabase
-    .from("education")
-    .select("*");
-
-  if (eduError) throw eduError;
-
-  // Gabungkan data education ke masing-masing CV
-  return cvs.map((cv) => ({
-    ...cv,
-    educations: educations?.filter((edu) => edu.cv_id === cv.id) || [],
-  }));
-};
-
-export const createCVService = async (cv: CV): Promise<CV> => {
+export async function getCVs(userId: string) {
   const { data, error } = await supabase
     .from("cv")
-    .insert([cv])
+    .select("*, education(*), work_experiences(*), skills(*)")
+    .eq("created_by", userId);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export async function createCV(
+  name: string,
+  color: string,
+  font: string,
+  userId: string
+) {
+  const { data, error } = await supabase
+    .from("cv")
+    .insert({ name, color, font, created_by: userId })
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return data;
-};
+}
 
-export const updateCVService = async (
+export async function updateCV(
   id: string,
-  cv: Partial<CV>
-): Promise<CV> => {
+  name: string,
+  color: string,
+  font: string,
+  userId: string
+) {
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
+
   const { data, error } = await supabase
     .from("cv")
-    .update(cv)
+    .update({ name, color, font })
     .eq("id", id)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return data;
-};
+}
 
-export const deleteCVService = async (id: string): Promise<void> => {
+export async function deleteCV(id: string, userId: string) {
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
   const { error } = await supabase.from("cv").delete().eq("id", id);
-  if (error) throw error;
-};
+  if (error) throw new Error(error.message);
+}

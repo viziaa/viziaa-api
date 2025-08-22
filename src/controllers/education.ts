@@ -1,68 +1,117 @@
 import { Request, Response } from "express";
 import {
-  createEducationService,
-  deleteEducationService,
-  getEducationsService,
-  updateEducationService,
+  createEducation,
+  deleteEducation,
+  getEducations,
+  updateEducation,
 } from "../services/educations";
 
-export const getEducations = async (req: Request, res: Response) => {
+export async function handleGetEducations(req: Request, res: Response) {
   try {
     const { cv_id } = req.params;
-    if (!cv_id) return res.status(400).json({ message: "cv_id is required" });
+    const userId = (req as any).user?.id;
+    if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
 
-    const educations = await getEducationsService(cv_id);
-    res.status(200).json(educations);
+    const data = await getEducations(cv_id, userId);
+    res.status(200).json({
+      code: 200,
+      status: "success",
+      message: "Berhasil mengambil data pendidikan",
+      data,
+    });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
+}
 
-export const createEducation = async (req: Request, res: Response) => {
+export async function handleCreateEducation(req: Request, res: Response) {
   try {
     const { cv_id } = req.params;
+    const userId = (req as any).user?.id;
     const { education_level, school_name, school_address, date_in, date_out } =
       req.body;
-    if (!cv_id) return res.status(400).json({ message: "cv_id is required" });
+    if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
 
-    const newEducation = await createEducationService({
+    const data = await createEducation(
       education_level,
       school_name,
       school_address,
       date_in,
       date_out,
       cv_id,
+      userId
+    );
+
+    res.status(201).json({
+      code: 201,
+      status: "success",
+      message: "Pendidikan berhasil dibuat",
+      data,
     });
-
-    res.status(201).json(newEducation);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
+}
 
-export const updateEducation = async (req: Request, res: Response) => {
+export async function handleUpdateEducation(req: Request, res: Response) {
+  try {
+    const id = req.params.id!;
+    const userId = (req as any).user?.id;
+    const { education_level, school_name, school_address, date_in, date_out } =
+      req.body;
+
+    if (!id)
+      return res.status(400).json({ message: "Pendidikan tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+    const data = await updateEducation(
+      id,
+      education_level,
+      school_name,
+      school_address,
+      date_in,
+      date_out,
+      userId
+    );
+    res.status(200).json({
+      code: 200,
+      status: "success",
+      message: "Update data pendidikan berhasil",
+      data,
+    });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
+  }
+}
+
+export async function handleDeleteEducation(req: Request, res: Response) {
   try {
     const id: string = req.params.id!;
-    const updatedEducation = await updateEducationService(id, req.body);
+    const userId = (req as any).user?.id;
+    if (!id)
+      return res.status(400).json({ message: "Pendidikan tidak ditemukan" });
+    if (!userId)
+      return res.status(401).json({ message: "Tidak terotentikasi" });
+
+    await deleteEducation(id, userId);
     res.status(200).json({
-      message: "Update berhasil",
-      data: updatedEducation,
+      code: 200,
+      status: "success",
+      message: "Pendidikan berhasil dihapus",
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ code: 500, status: "error", message: error.message });
   }
-};
-
-export const deleteEducation = async (req: Request, res: Response) => {
-  try {
-    const id: string = req.params.id!;
-
-    await deleteEducationService(id);
-    res.status(200).json({
-      message: "Delete berhasil",
-      data: deleteEducation,
-    });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-};
+}

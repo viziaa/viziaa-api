@@ -2,12 +2,12 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import express from "express";
 import { corsMiddleware } from "./middlewares/cors";
+import auth from "./routes/auth";
 import cv from "./routes/cv";
 import educations from "./routes/education";
-import auth from "./routes/login-register";
+import skill from "./routes/skill";
 import user from "./routes/user";
 import experience from "./routes/work-experiences";
-import skill from "./routes/skill"
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ app.use("/educations", educations);
 app.use("/cv", cv);
 app.use("/auth", auth);
 app.use("/experiences", experience);
-app.use("/skill", skill)
+app.use("/skill", skill);
 app.use("/user", user);
 
 app.listen(process.env.PORT, () => {

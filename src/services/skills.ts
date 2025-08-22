@@ -1,121 +1,127 @@
 import { supabase } from "../client/supabase";
 
+export async function getSkills(cv_id: string, userId: string) {
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", cv_id)
+    .single();
+
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
+
+  const { data, error } = await supabase
+    .from("skills")
+    .select()
+    .eq("cv_id", cv_id);
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export async function getDetailSkill(id: string, userId: string) {
+  const { data: skillData, error: skillError } = await supabase
+    .from("skills")
+    .select("*, cv(*)")
+    .eq("id", id)
+    .single();
+
+  if (skillError) throw new Error(skillError.message);
+  if (skillData.cv.created_by !== userId)
+    throw new Error("Tidak memiliki akses");
+
+  const { data, error } = await supabase
+    .from("skills")
+    .select()
+    .eq("id", id)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
 export async function addSkill(
   cv_id: string,
   skill_name: string,
   ability_level: string,
-  certificate: string
+  certificate: string,
+  userId: string
 ) {
-  try {
-    let result;
-    const { data, error } = await supabase
-      .from("skills")
-      .insert({ cv_id, skill_name, ability_level, certificate })
-      .select()
-      .single();
-    if (error) throw new Error(error.message);
-    if (certificate !== "") {
-      const { data: certData, error: certError } = await supabase
-        .from("skills")
-        .update({ certified: true })
-        .eq("id", data.id)
-        .select()
-        .single();
+  const { data: cvData, error: cvError } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", cv_id)
+    .single();
 
-      if (certError) throw new Error(certError.message);
+  if (cvError) throw new Error(cvError.message);
+  if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");
 
-      result = certData;
-    }
+  const { data, error } = await supabase
+    .from("skills")
+    .insert({
+      cv_id,
+      skill_name,
+      ability_level,
+      certificate,
+      certified: certificate !== undefined ? true : false,
+    })
+    .select()
+    .single();
 
-    return result;
-  } catch (err: any) {
-    throw new Error(err.message || "Terjadi kesalahan");
-  }
-}
+  if (error) throw new Error(error.message);
 
-export async function getAllSkill(cv_id: string) {
-  try {
-    const { data, error } = await supabase
-      .from("skills")
-      .select()
-      .eq("cv_id", cv_id);
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) throw new Error("Tidak ada data ditemukan");
-
-    return { data };
-  } catch (err: any) {
-    throw new Error(err.message || "Terjadi kesalahan");
-  }
-}
-
-export async function getDetailSkill(skill_id: string) {
-  try {
-    const { data, error } = await supabase
-      .from("skills")
-      .select()
-      .eq("id", skill_id)
-      .single();
-
-    if (!data) throw new Error("Tidak ada data ditemukan");
-    if (error) throw new Error(error.message);
-
-    return { data };
-  } catch (err: any) {
-    throw new Error(err.message || "Terjadi kesalahan");
-  }
+  return data;
 }
 
 export async function editSkill(
-  skill_id: string,
-  skill_name: string | null,
-  ability_level: number | null,
-  certified: boolean | null
+  id: string,
+  skill_name: string,
+  ability_level: number,
+  certificate: string,
+  userId: string
 ) {
-  try {
-    let updateData: any = {};
-    if (skill_name !== undefined && skill_name !== null)
-      updateData.skill_name = skill_name;
-    if (
-      ability_level !== undefined &&
-      ability_level !== null &&
-      !Number.isNaN(ability_level)
-    )
-      updateData.ability_level = ability_level;
-    if (certified !== undefined && certified !== null)
-      updateData.certified = certified;
+  const { data: skillData, error: skillError } = await supabase
+    .from("skills")
+    .select("*, cv(*)")
+    .eq("id", id)
+    .single();
 
-    const { data, error } = await supabase
-      .from("skills")
-      .update(updateData)
-      .eq("id", skill_id)
-      .select()
-      .single();
+  if (skillError) throw new Error(skillError.message);
+  if (skillData.cv.created_by !== userId)
+    throw new Error("Tidak memiliki akses");
 
-    if (error) throw new Error(error.message);
+  const updatePayload: any = { skill_name, ability_level };
 
-    return { data };
-  } catch (err: any) {
-    throw new Error(err.message || "Terjadi kesalahan");
+  if (certificate !== undefined) {
+    updatePayload.certificate = certificate;
+    updatePayload.certified = certificate.trim() === "" ? false : true;
   }
+
+  const { data, error } = await supabase
+    .from("skills")
+    .update(updatePayload)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
 }
 
-export async function deleteSkill(skill_id: string) {
-  try {
-    const { data, error } = await supabase
-      .from("skills")
-      .delete()
-      .eq("id", skill_id)
-      .select();
+export async function deleteSkill(id: string, userId: string) {
+  const { data: skillData, error: skillError } = await supabase
+    .from("skills")
+    .select("*, cv(*)")
+    .eq("id", id)
+    .single();
 
-    if (error) throw new Error(error.message);
+  if (skillError) throw new Error(skillError.message);
+  if (skillData.cv.created_by !== userId)
+    throw new Error("Tidak memiliki akses");
 
-    return {
-      code: 200,
-      status: "success",
-      message: "Data skill berhasil dihapus",
-      data,
-    };
-  } catch (err: any) {
-    throw new Error(err.message || "Terjadi kesalahan saat menghapus data");
-  }
+  const { error } = await supabase.from("skills").delete().eq("id", id);
+
+  if (error) throw new Error(error.message);
 }

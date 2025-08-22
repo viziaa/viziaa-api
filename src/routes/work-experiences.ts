@@ -1,14 +1,20 @@
-import express  from "express";
-import { limiter } from "../middlewares/limiter";
+import express from "express";
+import {
+  handleAddWorkExperience,
+  handleDeleteWorkExperience,
+  handleEditWorkExperience,
+  handleGetDetailWorkExperience,
+  handlerGetWorkExperiences,
+} from "../controllers/work-experiences";
 import { authenticate } from "../middlewares/auth";
-import { handlerAddWorkExperiences, handlerDeleteWorkExperiences, handlerEditWorkExperiences, handlerGetAllWorkExperiences, handlerGetDetailWorkExperiences } from "../controllers/work-experiences";
+import { limiter } from "../middlewares/limiter";
 
-const router = express.Router()
+const router = express.Router();
 
-router.get("/:cv_id/all", limiter, authenticate, handlerGetAllWorkExperiences)
-router.get("/:expr_id/detail", limiter, authenticate, handlerGetDetailWorkExperiences)
-router.post("/:cv_id/new", limiter, authenticate, handlerAddWorkExperiences)
-router.patch("/:expr_id/edit", limiter, authenticate, handlerEditWorkExperiences)
-router.delete("/:expr_id/delete", limiter, authenticate, handlerDeleteWorkExperiences)
+router.get("/:cv_id", limiter, authenticate, handlerGetWorkExperiences);
+router.get("/:id/detail", limiter, authenticate, handleGetDetailWorkExperience);
+router.post("/:cv_id", limiter, authenticate, handleAddWorkExperience);
+router.put("/:id", limiter, authenticate, handleEditWorkExperience);
+router.delete("/:id", limiter, authenticate, handleDeleteWorkExperience);
 
-export default router
+export default router;
