@@ -15,32 +15,31 @@ export async function getDataUser(id: string) {
 }
 
 export async function formDataUser(
-  id: string,
-  avatar: string,
-  nickname: string,
-  about: string,
-  phone: number,
-  address: string,
-  city: string,
-  region: string,
-  birthdate: Date
-) {
-  if (
-    !avatar ||
-    !nickname ||
-    !phone ||
-    !about ||
-    !address ||
-    !city ||
-    !region
-  ) {
-    throw new Error("Data tidak boleh kosong");
-  }
+      id: string,
+      avatar: string,
+      fullname: string,
+      nickname: string,
+      about: string,
+      phone: number,
+      address: string,
+      city: string,
+      region: string,
+      birthdate: Date
+    ) {
+      if (
+        !fullname ||
+        !nickname ||
+        !phone ||
+        !about ||
+        !address ||
+        !city ||
+        !region
+      ) {
+        throw new Error("Data tidak boleh kosong");
+      }
 
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .update({
-      avatar,
+      const updateData: any = {
+      fullname,
       nickname,
       about,
       phone,
@@ -48,14 +47,23 @@ export async function formDataUser(
       city,
       region,
       birthdate,
-    })
-    .eq("id", id)
-    .select()
-    .single();
+    };
 
-  if (userError) {
-    throw new Error(userError.message);
-  }
+    if (avatar) {
+      updateData.avatar = avatar;
+    }
 
-  return userData;
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    console.log(userError?.message)
+    if (userError) {
+      throw new Error(userError.message);
+    }
+
+    return userData;
 }

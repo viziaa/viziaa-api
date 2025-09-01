@@ -61,7 +61,8 @@ export async function createEducation(
     .select()
     .single();
 
-  if (error) throw new Error(error.message);
+  if(error) console.log(error.message)
+  if (error) throw new Error (error.message);
 
   return data;
 }

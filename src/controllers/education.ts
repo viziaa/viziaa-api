@@ -37,7 +37,6 @@ export async function handleCreateEducation(req: Request, res: Response) {
     if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
     if (!userId)
       return res.status(401).json({ message: "Tidak terotentikasi" });
-
     const data = await createEducation(
       education_level,
       school_name,
