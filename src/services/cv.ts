@@ -11,6 +11,19 @@ export async function getCVs(userId: string) {
   return data;
 }
 
+export async function getCvById(userId: string, cvId: string) {
+  const { data, error } = await supabase
+    .from("cv")
+    .select("*")
+    .eq("id", cvId)
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (data.created_by !== userId) throw new Error("Tidak memiliki akses");
+
+  return data;
+}
+
 export async function createCV(
   name: string,
   color: string,

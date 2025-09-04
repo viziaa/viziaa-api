@@ -1,5 +1,15 @@
+import dotenv from "dotenv";
 import { Request, Response } from "express";
-import { createCV, deleteCV, getCVs, updateCV } from "../services/cv";
+import {
+  createCV,
+  deleteCV,
+  getCvById,
+  getCVs,
+  updateCV,
+} from "../services/cv";
+import { generatePdfFromUrl } from "../utils/puppeteer";
+
+dotenv.config();
 
 export async function handleGetCVs(req: Request, res: Response) {
   try {
@@ -90,5 +100,39 @@ export const handleDeleteCV = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ code: 500, status: "error", message: error.message });
+  }
+};
+
+export const handleDownloadCvPdf = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id; // dari middleware auth
+    const cvId = req.params.cvId!;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Tidak terotentikasi" });
+    }
+
+    // pastikan CV milik user
+    await getCvById(userId, cvId);
+
+    // URL frontend preview (tanpa toolbar, navbar, dll.)
+    const previewUrl = `${process.env.CLIENT_URL}/cv/${cvId}/preview`;
+
+    const token = req.cookies["sb-session"];
+    if (!token) {
+      return res.status(401).json({ error: "Tidak ada session" });
+    }
+
+    const pdfBuffer = await generatePdfFromUrl(previewUrl, token);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="cv-${cvId}.pdf"`
+    );
+
+    return res.send(pdfBuffer);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
 };
