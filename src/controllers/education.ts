@@ -32,7 +32,7 @@ export async function handleCreateEducation(req: Request, res: Response) {
   try {
     const { cv_id } = req.params;
     const userId = (req as any).user?.id;
-    const { education_level, school_name, school_address, date_in, date_out } =
+    const { education_level, major, school_name, school_address, date_in, date_out } =
       req.body;
     if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
     if (!userId)
@@ -40,6 +40,7 @@ export async function handleCreateEducation(req: Request, res: Response) {
     const data = await createEducation(
       education_level,
       school_name,
+      major,
       school_address,
       date_in,
       date_out,
@@ -64,7 +65,7 @@ export async function handleUpdateEducation(req: Request, res: Response) {
   try {
     const id = req.params.id!;
     const userId = (req as any).user?.id;
-    const { education_level, school_name, school_address, date_in, date_out } =
+    const { education_level, school_name, major, school_address, date_in, date_out } =
       req.body;
 
     if (!id)
@@ -75,6 +76,7 @@ export async function handleUpdateEducation(req: Request, res: Response) {
       id,
       education_level,
       school_name,
+      major,
       school_address,
       date_in,
       date_out,

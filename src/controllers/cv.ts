@@ -57,7 +57,7 @@ export async function handleUpdateCV(req: Request, res: Response) {
   try {
     const id = req.params.id!;
     const userId = (req as any).user?.id;
-    const { name, color, font } = req.body;
+    const { color, font, desain } = req.body;
 
     if (!id) {
       return res
@@ -69,7 +69,7 @@ export async function handleUpdateCV(req: Request, res: Response) {
       return res.status(401).json({ message: "Tidak terotentikasi" });
     }
 
-    const data = await updateCV(id, name, color, font, userId);
+    const data = await updateCV(id, color, font, desain, userId);
     res.status(200).json({
       code: 200,
       status: "success",
