@@ -33,6 +33,7 @@ export async function getEducations(cv_id: string, userId: string) {
 export async function createEducation(
   education_level: string,
   school_name: string,
+  major: string | null,
   school_address: string,
   date_in: Date,
   date_out: Date,
@@ -53,6 +54,7 @@ export async function createEducation(
     .insert({
       education_level,
       school_name,
+      major,
       school_address,
       date_in,
       date_out,
@@ -71,6 +73,7 @@ export async function updateEducation(
   id: string,
   education_level: string,
   school_name: string,
+  major:string | null,
   school_address: string,
   date_in: Date,
   date_out: Date,
@@ -90,6 +93,7 @@ export async function updateEducation(
     .update({
       education_level,
       school_name,
+      major,
       school_address,
       date_in,
       date_out,

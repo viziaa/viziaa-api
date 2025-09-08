@@ -66,15 +66,16 @@ export async function handleAddWorkExperience(req: Request, res: Response) {
   try {
     const cv_id = req.params.cv_id;
     const userId = (req as any).user?.id;
-    const { corporate, date_in, date_out } = req.body;
+    const { corporate, position, jobdesk, date_in, date_out } = req.body;
 
     if (!cv_id) return res.status(400).json({ message: "CV tidak ditemukan" });
     if (!userId)
       return res.status(401).json({ message: "Tidak terotentikasi" });
-
     const data = await addWorkExperience(
       cv_id,
       corporate,
+      position,
+      jobdesk,
       date_in,
       date_out,
       userId
@@ -99,7 +100,7 @@ export async function handleEditWorkExperience(req: Request, res: Response) {
   try {
     const id = req.params.id;
     const userId = (req as any).user?.id;
-    const { corporate, date_in, date_out } = req.body;
+    const { corporate, position, jobdesk, date_in, date_out } = req.body;
 
     if (!id) return res.status(400).json({ message: "CV tidak ditemukan" });
     if (!userId)
@@ -108,6 +109,8 @@ export async function handleEditWorkExperience(req: Request, res: Response) {
     const data = await editWorkExperience(
       id,
       corporate,
+      position,
+      jobdesk,
       date_in,
       date_out,
       userId

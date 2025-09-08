@@ -42,9 +42,9 @@ export async function createCV(
 
 export async function updateCV(
   id: string,
-  name: string,
   color: string,
   font: string,
+  desain:number,
   userId: string
 ) {
   const { data: cvData, error: cvError } = await supabase
@@ -58,7 +58,7 @@ export async function updateCV(
 
   const { data, error } = await supabase
     .from("cv")
-    .update({ name, color, font })
+    .update({ color, font, desain })
     .eq("id", id)
     .select()
     .single();

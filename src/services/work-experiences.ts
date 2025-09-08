@@ -36,6 +36,8 @@ export async function getDetailWorkExperience(id: string, userId: string) {
 export async function addWorkExperience(
   cv_id: string,
   corporate: string,
+  position: string,
+  jobdesk: string,
   date_in: Date,
   date_out: Date,
   userId: string
@@ -51,17 +53,19 @@ export async function addWorkExperience(
 
   const { data, error } = await supabase
     .from("work_experiences")
-    .insert({ cv_id, corporate, date_in, date_out })
+    .insert({ cv_id, corporate, position, jobdesk, date_in, date_out })
     .select()
     .single();
   if (error) throw new Error(error.message);
-
+  
   return data;
 }
 
 export async function editWorkExperience(
   id: string,
   corporate: string,
+  position: string,
+  jobdesk: string,
   date_in: Date,
   date_out: Date,
   userId: string
@@ -77,7 +81,7 @@ export async function editWorkExperience(
 
   const { data, error } = await supabase
     .from("work_experiences")
-    .update({ corporate, date_in, date_out })
+    .update({ corporate, position, jobdesk , date_in, date_out })
     .eq("id", id)
     .select()
     .single();
