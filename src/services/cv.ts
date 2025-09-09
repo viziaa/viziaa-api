@@ -72,7 +72,7 @@ export async function deleteCV(id: string, userId: string) {
     .from("cv")
     .select("*")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (cvError) throw new Error(cvError.message);
   if (cvData.created_by !== userId) throw new Error("Tidak memiliki akses");

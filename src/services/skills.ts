@@ -115,7 +115,7 @@ export async function deleteSkill(id: string, userId: string) {
     .from("skills")
     .select("*, cv(*)")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (skillError) throw new Error(skillError.message);
   if (skillData.cv.created_by !== userId)

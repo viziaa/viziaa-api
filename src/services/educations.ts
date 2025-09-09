@@ -111,7 +111,7 @@ export async function deleteEducation(id: string, userId: string) {
     .from("education")
     .select("*, cv(*)")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (eduError) throw new Error(eduError.message);
   if (eduData.cv.created_by !== userId) throw new Error("Tidak memiliki akses");

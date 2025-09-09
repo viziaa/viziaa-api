@@ -96,7 +96,7 @@ export async function deleteWorkExperience(id: string, userId: string) {
     .from("work_experiences")
     .select("*, cv(*)")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (expError) throw new Error(expError.message);
   if (expData.cv.created_by !== userId) throw new Error("Tidak memiliki akses");
