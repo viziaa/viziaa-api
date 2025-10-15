@@ -1,5 +1,5 @@
 
-# WorkSCOPE APP (API)
+# viziaa APP (API)
 
 Viziaa is a CV builder app that makes it easy for anyone — even beginners — to quickly create a professional CV.  
 With a wide selection of templates, fonts, and colors, and an intuitive interface, Viziaa helps you design a standout CV that reflects your style and professional identity effortlessly.
