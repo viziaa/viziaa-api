@@ -38,6 +38,6 @@ Running Aplication
 After running the backend API, you also need to run the frontend UI and Landing Page (optional).
 You can clone and run FrontEnd from the following repository:
 👉 [Frontend Repository](https://github.com/viziaa/viziaa-ui)
-👉 [Landing Page Repository](https://github.com/viziaa/landingpage)
+👉 [Landing Page Repository](https://github.com/viziaa/viziaa-landing)
 
 
